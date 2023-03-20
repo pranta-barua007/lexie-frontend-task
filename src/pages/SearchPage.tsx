@@ -1,12 +1,37 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import axios from 'axios';
 
+import { SubmitHandler, useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import RHFormInput from '@components/RHF-Input';
+import Button from '@ui/Button';
+import Card from '@components/Card';
+
+const currentYear = new Date().getFullYear();
+
+const validationSchema = z
+  .object({
+    query: z.string().min(4, { message: 'Must be 4 characters long!' }),
+    startYear: z.string().max(4, { message: 'Year must be 4 characters' }).default('2011'),
+    endYear: z.string().max(4, { message: 'Year must be 4 characters' }).default(`${currentYear}`),
+  })
+  .refine((data) => Number(data.startYear) < Number(data.endYear), {
+    path: ['startYear'],
+    message: 'Must be less then End Year',
+  });
+
+type ValidationSchema = z.infer<typeof validationSchema>;
+
 const SearchPage = () => {
-  const [query, setQuery] = useState('');
-  const [yearStart, setYearStart] = useState('2011');
-  const [yearEnd, setYearEnd] = useState('');
   const [results, setResults] = useState([]);
+
+  const methods = useForm<ValidationSchema>({
+    resolver: zodResolver(validationSchema),
+  });
+
+  const { reset, handleSubmit } = methods;
   interface Result {
     data: {
       nasa_id: string;
@@ -19,67 +44,72 @@ const SearchPage = () => {
     }[];
   }
 
-  const handleSearch = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
     try {
       const response = await axios.get('https://images-api.nasa.gov/search', {
         params: {
-          q: query,
+          q: data.query,
           media_type: 'image',
-          year_start: yearStart,
-          year_end: yearEnd,
+          year_start: data.startYear,
+          year_end: data.endYear,
         },
       });
       setResults(response.data.collection.items);
     } catch (error) {
       console.error(error);
+      reset({
+        query: '',
+      });
     }
   };
 
-  const currentYear = new Date().getFullYear();
-
   return (
-    <div>
-      <form onSubmit={handleSearch}>
-        <label htmlFor="query">Search query:</label>
-        <input
-          type="text"
-          id="query"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          required
-        />
-        <label htmlFor="yearStart">Year start:</label>
-        <input
-          type="number"
-          id="yearStart"
-          value={yearStart}
-          min={'2011'}
-          max={currentYear - 1}
-          onChange={(event) => setYearStart(event.target.value)}
-        />
-        <label htmlFor="yearEnd">Year end:</label>
-        <input
-          type="number"
-          id="yearEnd"
-          value={yearEnd}
-          min={Number(yearStart) + 1}
-          max={currentYear}
-          onChange={(event) => setYearEnd(event.target.value)}
-        />
-        <button type="submit">Search</button>
-      </form>
-      <ul>
+    <div className="p-12">
+      <div className="mb-16 flex w-full flex-col items-center justify-center">
+        <h1 className="mb-16 text-center text-4xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
+          NASA
+          <span className="animate-bounce">🛸</span>
+          Media Library
+        </h1>
+
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="mb-4 grid gap-8 sm:grid-cols-1 md:grid-cols-3 lg:gap-4">
+              <RHFormInput name="query" label="Search" type="text" />
+              <RHFormInput
+                name="startYear"
+                label="Starting Year"
+                type="number"
+                min={'2011'}
+                max={`${Number(methods.getValues().endYear) - 1}`}
+              />
+              <RHFormInput
+                name="endYear"
+                label="Ending Year"
+                type="number"
+                min={methods.getValues().startYear}
+                max={`${currentYear}`}
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              <Button label="Submit" type="submit" fullWidth />
+            </div>
+          </form>
+        </FormProvider>
+      </div>
+
+      <div className="grid gap-x-8 gap-y-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {results.map((result: Result) => (
-          <li key={result.data[0].nasa_id}>
-            <img src={result.links[0].href} alt={result.data[0].title} />
-            <p>{result.data[0].title}</p>
-            <p>{result.data[0].location}</p>
-            <p>{result.data[0].photographer}</p>
-            <a href={`/show/${result.data[0].nasa_id}`}>Details</a>
-          </li>
+          <Card
+            key={result.data[0].nasa_id}
+            img={result.links[0].href}
+            title={result.data[0].title}
+            photographer={result.data[0].photographer}
+            location={result.data[0].location}
+            link={result.data[0].nasa_id}
+          />
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
