@@ -1,10 +1,12 @@
 import './App.css';
+import { Routes, Route } from 'react-router-dom';
+import SearchPage from '@pages/SearchPage';
 
 function App() {
   return (
-    <div className="App">
-      <p className="text-bold bg-white text-sky-600">fresh start</p>
-    </div>
+    <Routes>
+      <Route path="/" element={<SearchPage />} />
+    </Routes>
   );
 }
 
