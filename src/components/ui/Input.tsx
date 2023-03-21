@@ -19,7 +19,7 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
         />
         <label
           htmlFor={otherProps.name}
-          className="absolute left-0 -top-3.5 text-sm text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-800 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-gray-600"
+          className="absolute left-0 -top-3.5 bg-transparent text-sm text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-white peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-gray-600"
         >
           {errorMessage ? <span className="text-red-400">{errorMessage}</span> : label}
         </label>
