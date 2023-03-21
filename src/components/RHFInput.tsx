@@ -5,15 +5,16 @@ import Input, { InputProps } from '@ui/Input';
 
 type RHFInputProps = {
   name: string;
+  required?: boolean;
 } & InputProps;
 
-const RHFormInput: FC<RHFInputProps> = ({ name, ...other }) => {
+const RHFInput: FC<RHFInputProps> = ({ name, required, ...other }) => {
   const { control } = useFormContext();
   return (
     <Controller
       name={name}
       control={control}
-      rules={{ required: true }}
+      rules={{ required }}
       render={({ field, fieldState: { error } }) => (
         <Input {...field} errorMessage={error?.message} {...other} />
       )}
@@ -21,4 +22,4 @@ const RHFormInput: FC<RHFInputProps> = ({ name, ...other }) => {
   );
 };
 
-export default RHFormInput;
+export default RHFInput;

@@ -6,7 +6,7 @@ import { SubmitHandler, useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
-import RHFormInput from '@components/RHF-Input';
+import RHFInput from '@components/RHFInput';
 import Button from '@ui/Button';
 import Card from '@components/Card';
 
@@ -71,13 +71,11 @@ const SearchPage = () => {
   return (
     <div className="p-12">
       <div className="mb-16 flex w-full flex-col items-center justify-center">
-        <div className="mb-16 ">
-          <h1 className="text-center text-4xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
-            NASA
-            <span className="animate-bounce">🛸</span>
-            Media Library
+        <div className="mb-16">
+          <h1 className="text-4xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
+            NASA 🛸 Media Library
           </h1>
-          <small className="text-center text-3xl font-semibold text-slate-200">
+          <small className="text-xl font-semibold text-slate-200 md:text-3xl">
             Sharing the moments of joy
           </small>
         </div>
@@ -85,15 +83,21 @@ const SearchPage = () => {
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-4 grid gap-8 text-lg sm:grid-cols-1 md:grid-cols-3 lg:gap-4">
-              <RHFormInput name="query" label="🔍 Search" type="text" className="col-span-2" />
-              <RHFormInput
+              <RHFInput
+                name="query"
+                label="🔍 Search"
+                type="text"
+                required
+                className="col-span-2"
+              />
+              <RHFInput
                 name="startYear"
                 label="📅 Starting Year"
                 type="number"
                 min={'2011'}
                 max={`${Number(methods.getValues().endYear) - 1}`}
               />
-              <RHFormInput
+              <RHFInput
                 name="endYear"
                 label="📆 Ending Year"
                 type="number"
