@@ -14,4 +14,7 @@ export default defineConfig({
       '@contexts': path.resolve(__dirname, './src/contexts'),
     },
   },
+  optimizeDeps: {
+    exclude: ['./src/__tests__']
+  }
 })
