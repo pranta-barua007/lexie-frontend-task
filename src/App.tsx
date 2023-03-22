@@ -1,21 +1,26 @@
+import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import SearchPage from '@pages/SearchPage';
 import Layout from './Layout';
 import './App.css';
-import ShowPage from '@pages/ShowPage';
+
+const SearchPage = lazy(() => import('@pages/SearchPage'));
+const ShowPage = lazy(() => import('@pages/ShowPage'));
 
 import StoreProvider from '@contexts/store.context';
+import Spinner from '@components/Spinner';
 
 function App() {
   return (
-    <StoreProvider>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<SearchPage />} />
-          <Route path="/:id" element={<ShowPage />} />
-        </Routes>
-      </Layout>
-    </StoreProvider>
+    <Suspense fallback={<Spinner />}>
+      <StoreProvider>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<SearchPage />} />
+            <Route path="/:id" element={<ShowPage />} />
+          </Routes>
+        </Layout>
+      </StoreProvider>
+    </Suspense>
   );
 }
 
