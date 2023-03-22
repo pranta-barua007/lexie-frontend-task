@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import { Link } from 'react-router-dom';
 
 type CardProps = {
   title: string;
@@ -6,9 +7,10 @@ type CardProps = {
   photographer: string;
   img: string;
   link: string;
+  onClick?: () => void;
 };
 
-const Card: FC<CardProps> = ({ title, img, location, photographer, link }) => {
+const Card: FC<CardProps> = ({ title, img, location, photographer, link, onClick }) => {
   return (
     <div className="mt-6 transform rounded-tl-2xl rounded-br-2xl bg-slate-800 shadow-xl transition duration-300 hover:-translate-y-2 hover:shadow-2xl ">
       <div className="card-img-top w-full rounded-tl-2xl">
@@ -46,14 +48,9 @@ const Card: FC<CardProps> = ({ title, img, location, photographer, link }) => {
         </p>
         <div className="flex gap-4 py-4 text-lg">
           {link && (
-            <a
-              className="hover:text-pond animate-pulse text-sky-400"
-              href={link}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <Link to={`/${link}`} className="animate-pulse text-sky-300" onClick={onClick}>
               Details
-            </a>
+            </Link>
           )}
         </div>
       </div>

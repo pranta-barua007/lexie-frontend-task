@@ -16,7 +16,12 @@ const RHFInput: FC<RHFInputProps> = ({ name, required, ...other }) => {
       control={control}
       rules={{ required }}
       render={({ field, fieldState: { error } }) => (
-        <Input {...field} errorMessage={error?.message} {...other} />
+        <Input
+          {...field}
+          value={typeof field.value === 'number' && field.value === 0 ? '' : field.value}
+          errorMessage={error?.message}
+          {...other}
+        />
       )}
     />
   );

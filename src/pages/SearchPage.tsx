@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 import axios from 'axios';
 
@@ -9,6 +9,9 @@ import * as z from 'zod';
 import RHFInput from '@components/RHFInput';
 import Button from '@ui/Button';
 import Card from '@components/Card';
+
+import { INasaSearchResult } from '@utils/api/api.types';
+import { ACTION_TYPES, StoreContext } from '@contexts/store.context';
 
 const currentYear = new Date().getFullYear();
 
@@ -26,25 +29,15 @@ const validationSchema = z
 type ValidationSchema = z.infer<typeof validationSchema>;
 
 const SearchPage = () => {
-  const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const { state, dispatch } = useContext(StoreContext);
 
   const methods = useForm<ValidationSchema>({
     resolver: zodResolver(validationSchema),
   });
 
   const { reset, handleSubmit } = methods;
-  interface Result {
-    data: {
-      nasa_id: string;
-      title: string;
-      location: string;
-      photographer: string;
-    }[];
-    links: {
-      href: string;
-    }[];
-  }
 
   const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
     try {
@@ -57,7 +50,11 @@ const SearchPage = () => {
           year_end: data.endYear,
         },
       });
-      setResults(response.data.collection.items);
+
+      dispatch({
+        type: ACTION_TYPES.SET_COLLECTIONS,
+        payload: response.data.collection.items,
+      });
     } catch (error) {
       console.error(error);
       reset({
@@ -113,7 +110,7 @@ const SearchPage = () => {
       </div>
 
       <div className="grid gap-x-8 gap-y-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {results.map((result: Result) => (
+        {state.collections.map((result: INasaSearchResult) => (
           <Card
             key={result.data[0].nasa_id}
             img={result.links[0].href}
@@ -121,6 +118,12 @@ const SearchPage = () => {
             photographer={result.data[0].photographer}
             location={result.data[0].location}
             link={result.data[0].nasa_id}
+            onClick={() =>
+              dispatch({
+                type: ACTION_TYPES.SET_CURRENT_COLLECTION,
+                payload: result,
+              })
+            }
           />
         ))}
       </div>
