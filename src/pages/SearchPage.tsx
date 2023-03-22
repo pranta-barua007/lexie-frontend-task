@@ -18,13 +18,21 @@ const currentYear = new Date().getFullYear();
 const validationSchema = z
   .object({
     query: z.string().min(4, { message: 'Must be 4 characters long!' }),
-    startYear: z.string().max(4, { message: 'Year must be 4 characters' }).default('2011'),
-    endYear: z.string().max(4, { message: 'Year must be 4 characters' }).default(`${currentYear}`),
+    startYear: z.string().max(4, { message: 'Year must be 4 characters' }).optional(),
+    endYear: z.string().max(4, { message: 'Year must be 4 characters' }).optional(),
   })
-  .refine((data) => Number(data.startYear) < Number(data.endYear), {
-    path: ['startYear'],
-    message: 'Must be less then End Year',
-  });
+  .refine(
+    (data) => {
+      if (data.startYear?.length && data.endYear?.length) {
+        return Number(data.startYear) < Number(data.endYear);
+      }
+      return true;
+    },
+    {
+      path: ['startYear'],
+      message: 'Must be less than End Year',
+    },
+  );
 
 type ValidationSchema = z.infer<typeof validationSchema>;
 
@@ -78,27 +86,15 @@ const SearchPage = () => {
         </div>
 
         <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} data-testid="form">
             <div className="mb-4 grid gap-8 text-lg sm:grid-cols-1 md:grid-cols-3 lg:gap-4">
-              <RHFInput
-                name="query"
-                label="🔍 Search"
-                type="text"
-                required
-                className="col-span-2"
-              />
-              <RHFInput
-                name="startYear"
-                label="📅 Starting Year"
-                type="number"
-                min={'2011'}
-                max={`${Number(methods.getValues().endYear) - 1}`}
-              />
+              <RHFInput name="query" label="🔍 Search" type="text" className="col-span-2" />
+              <RHFInput name="startYear" label="📅 Starting Year" type="number" min={'2011'} />
               <RHFInput
                 name="endYear"
                 label="📆 Ending Year"
                 type="number"
-                min={`${Number(methods.getValues().startYear) + 1}`}
+                min={'2012'}
                 max={currentYear}
               />
             </div>
