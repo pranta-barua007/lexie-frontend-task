@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 
-import axios from 'axios';
+import { dataAPI } from '@utils/api/url';
 
 import { SubmitHandler, useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -50,7 +50,7 @@ const SearchPage = () => {
   const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
     try {
       setLoading(true);
-      const response = await axios.get('https://images-api.nasa.gov/search', {
+      const response = await dataAPI.get('/search', {
         params: {
           q: data.query,
           media_type: 'image',

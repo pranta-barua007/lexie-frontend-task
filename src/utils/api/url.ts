@@ -1,3 +1,4 @@
-const API_URL = 'https://images-api.nasa.gov';
+import axios from 'axios';
 
-export default API_URL;
+const API_URL = 'https://images-api.nasa.gov';
+export const dataAPI = axios.create({ baseURL: API_URL });

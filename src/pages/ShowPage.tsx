@@ -1,10 +1,9 @@
 import { useEffect, useState, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import { StoreContext } from '@contexts/store.context';
 
-import API_URL from '@utils/api/url';
 import { INasaAsset } from '@utils/api/api.types';
+import { dataAPI } from '@utils/api/url';
 
 const ShowPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,8 +16,7 @@ const ShowPage = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get<INasaAsset>(`${API_URL}/asset/${id}`);
-        console.log({ response });
+        const response = await dataAPI.get<INasaAsset>(`/asset/${id}`);
         const { data } = response;
         setData(data);
       } catch (error) {

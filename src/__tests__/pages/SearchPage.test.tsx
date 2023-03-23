@@ -1,10 +1,11 @@
 import { render, waitFor, screen, fireEvent } from '@testing-library/react';
-import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { StoreContext } from '@contexts/store.context';
 import SearchPage from '@pages/SearchPage';
 import { vi } from 'vitest';
 import { INasaSearchResult } from '@utils/api/api.types';
+
+import { dataAPI } from '@utils/api/url';
 
 const mockDispatch = vi.fn();
 
@@ -16,7 +17,7 @@ const mockStore = {
   dispatch: mockDispatch,
 };
 
-const mockAxios = new MockAdapter(axios);
+const mockAxios = new MockAdapter(dataAPI);
 
 const mockCollections: INasaSearchResult[] = [
   {
@@ -48,7 +49,6 @@ const mockCollections: INasaSearchResult[] = [
     links: [{ href: 'http://test2.com' }],
   },
 ];
-
 describe('SearchPage', () => {
   beforeEach(() => {
     mockAxios.reset();
@@ -57,7 +57,6 @@ describe('SearchPage', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    mockAxios.restore();
   });
 
   it('renders the page title and form', () => {
@@ -99,16 +98,9 @@ describe('SearchPage', () => {
   });
 
   it('dispatches the correct action and displays search results when the form is submitted', async () => {
-    mockAxios
-      .onGet('https://images-api.nasa.gov/search', {
-        params: {
-          q: 'apollo',
-          media_type: 'image',
-          year_start: '',
-          year_end: '',
-        },
-      })
-      .reply(200, { collection: { items: mockCollections } });
+    mockAxios.onGet('/search').reply(200, {
+      collection: { items: mockCollections },
+    });
 
     const { getByRole, getByTestId, getByText } = render(
       <StoreContext.Provider value={mockStore}>
@@ -124,15 +116,14 @@ describe('SearchPage', () => {
     await waitFor(
       () => {
         expect(mockDispatch).toBeCalledTimes(1);
-        //TODO: CHECK ERROR
-        //   expect(mockDispatch.mock.calls[0][0]).toEqual({
-        //     type: 'SET_COLLECTIONS',
-        //     payload: mockCollections,
-        //   });
-        // expect(mockDispatch).toHaveBeenCalledWith({
-        //   type: 'SET_COLLECTIONS',
-        //   payload: mockCollections,
-        // });
+        expect(mockDispatch).toHaveBeenCalledWith({
+          type: 'SET_COLLECTIONS',
+          payload: mockCollections,
+        });
+        expect(mockDispatch.mock.calls[0][0]).toEqual({
+          type: 'SET_COLLECTIONS',
+          payload: mockCollections,
+        });
       },
       {
         timeout: 2000,
